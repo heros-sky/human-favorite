@@ -3,12 +3,14 @@ package com.u9porn.ui.porn9video.author;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Switch;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.helper.loadviewhelper.help.OnLoadViewListener;
@@ -29,6 +31,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Optional;
 
 /**
  * @author flymegoc
@@ -41,6 +44,9 @@ public class AuthorActivity extends MvpActivity<AuthorView, AuthorPresenter> imp
     RecyclerView recyclerView;
     @BindView(R.id.swipe_layout)
     SwipeRefreshLayout swipeLayout;
+
+    @BindView(R.id.type_switch)
+    Switch type_switch;
     private V91PornAdapter mV91PornAdapter;
     private LoadViewHelper helper;
     private String uid;
@@ -62,11 +68,15 @@ public class AuthorActivity extends MvpActivity<AuthorView, AuthorPresenter> imp
         init();
     }
 
+    public String get_type(){
+        return type_switch.getText().toString();
+    }
+
     private void init() {
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                presenter.authorVideos(uid, true);
+                presenter.authorVideos(uid, get_type(),true);
             }
         });
         swipeLayout.setEnabled(false);
@@ -88,7 +98,7 @@ public class AuthorActivity extends MvpActivity<AuthorView, AuthorPresenter> imp
             @Override
             public void onLoadMoreRequested() {
 
-                presenter.authorVideos(uid, false);
+                presenter.authorVideos(uid, get_type(),false);
             }
         }, recyclerView);
 
@@ -97,10 +107,10 @@ public class AuthorActivity extends MvpActivity<AuthorView, AuthorPresenter> imp
             @Override
             public void onRetryClick() {
                 swipeLayout.setEnabled(false);
-                presenter.authorVideos(uid, true);
+                presenter.authorVideos(uid, get_type(),true);
             }
         });
-        presenter.authorVideos(uid, false);
+        presenter.authorVideos(uid, get_type(),false);
     }
 
     @NonNull

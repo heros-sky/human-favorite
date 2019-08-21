@@ -18,6 +18,8 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.HttpUrl;
+
 /**
  * @author flymegoc
  * @date 2018/1/23
@@ -197,15 +199,24 @@ public class ParseForum9Porn {
         Document doc = Jsoup.parse(html);
         //尝试解析header中的地址
         Element linkTag = doc.select("link").first();
-        String address = null;
+        String address = "";
         if (linkTag != null) {
             String href = linkTag.attr("href");
             address = StringUtils.subString(href, 0, href.indexOf("archiver"));
         }
         //如果成功解析到地址且和原地址不同，则替换
+
         if (!TextUtils.isEmpty(address) && !address.equals(baseUrl)) {
-            baseUrl = address;
-            Logger.t(TAG).e("替换地址为::::" + address);
+            HttpUrl newUrl = HttpUrl.parse(address);
+            HttpUrl oldUrl = HttpUrl.parse(baseUrl);
+            //要区分http 和https ,只比对域名部分
+            if (newUrl != null && oldUrl != null && !newUrl.host().equals(oldUrl.host())) {
+                baseUrl = address;
+                Logger.t(TAG).e("替换前缀地址为::::" + baseUrl);
+            } else {
+                Logger.t(TAG).e("域名一致，无需替换::::" + baseUrl);
+            }
+
         }
         Element content = doc.getElementsByClass("t_msgfontfix").first();
 
@@ -241,17 +252,29 @@ public class ParseForum9Porn {
         Elements imagesElements = content.select("img");
         List<String> stringList = new ArrayList<>();
         for (Element element : imagesElements) {
+            //优先提取src里面的值
             String imgUrl = element.attr("src");
             //只替换不为空且结尾为.jpg 但链接不完整的
-            if (!TextUtils.isEmpty(imgUrl) && imgUrl.endsWith(".jpg") && !imgUrl.startsWith("http")) {
+            boolean canUserSrcValue = !TextUtils.isEmpty(imgUrl) && imgUrl.endsWith(".jpg") && !imgUrl.startsWith("http");
+            if (canUserSrcValue) {
                 imgUrl = baseUrl + imgUrl;
                 element.attr("src", imgUrl);
                 stringList.add(imgUrl);
-            } else if (!TextUtils.isEmpty(element.attr("file"))) {
-                imgUrl = baseUrl + element.attr("file");
-                element.attr("src", imgUrl);
-                stringList.add(imgUrl);
+            } else {
+                String fileValue = element.attr("file");
+                if (!TextUtils.isEmpty(fileValue)) {
+                    HttpUrl httpUrl = HttpUrl.parse(fileValue);
+                    if (httpUrl != null) {
+                        //如果是完整的连接就不要拼接了
+                        imgUrl = element.attr("file");
+                    } else {
+                        imgUrl = baseUrl + element.attr("file");
+                    }
+                    element.attr("src", imgUrl);
+                    stringList.add(imgUrl);
+                }
             }
+            Logger.t(TAG).e("最终图片地址::::" + imgUrl);
             element.attr("width", "100%");
             element.attr("style", "margin-top: 1em;");
             element.attr("alt", "[图片无法加载...]");

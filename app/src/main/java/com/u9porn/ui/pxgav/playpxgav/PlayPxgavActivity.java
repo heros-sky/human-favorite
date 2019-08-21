@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.devbrackets.android.exomedia.listener.OnPreparedListener;
 import com.flymegoc.exolibrary.widget.ExoVideoControlsMobile;
 import com.flymegoc.exolibrary.widget.ExoVideoView;
@@ -23,13 +22,13 @@ import com.orhanobut.logger.Logger;
 import com.qmuiteam.qmui.util.QMUIDisplayHelper;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u9porn.R;
-import com.u9porn.adapter.PaAdapter;
+import com.u9porn.adapter.PxgavAdapter;
+import com.u9porn.constants.Keys;
 import com.u9porn.data.model.pxgav.PxgavModel;
 import com.u9porn.data.model.pxgav.PxgavVideoParserJsonResult;
 import com.u9porn.ui.MvpActivity;
 import com.u9porn.utils.DialogUtils;
 import com.u9porn.utils.GlideApp;
-import com.u9porn.constants.Keys;
 import com.u9porn.utils.MyHeaderInjector;
 
 import java.util.List;
@@ -175,22 +174,18 @@ public class PlayPxgavActivity extends MvpActivity<PlayPxgavView, PlayPxgavPrese
 
     @Override
     public void listVideo(List<PxgavModel> pxgavModelList) {
-        PaAdapter paAdapter = new PaAdapter(R.layout.item_pav);
-        paAdapter.setWidth(QMUIDisplayHelper.getScreenWidth(context));
-        paAdapter.setNewData(pxgavModelList);
+        PxgavAdapter pxgavAdapter = new PxgavAdapter(R.layout.item_pxgav);
+        pxgavAdapter.setNewData(pxgavModelList);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        recyclerView.setAdapter(paAdapter);
-        paAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                PxgavModel pxgavModel = (PxgavModel) adapter.getItem(position);
-                if (pxgavModel == null) {
-                    return;
-                }
-                videoPlayer.pause();
-                videoPlayer.reset();
-                parseVideoUrl(pxgavModel);
+        recyclerView.setAdapter(pxgavAdapter);
+        pxgavAdapter.setOnItemClickListener((adapter, view, position) -> {
+            PxgavModel pxgavModel = (PxgavModel) adapter.getItem(position);
+            if (pxgavModel == null) {
+                return;
             }
+            videoPlayer.pause();
+            videoPlayer.reset();
+            parseVideoUrl(pxgavModel);
         });
     }
 

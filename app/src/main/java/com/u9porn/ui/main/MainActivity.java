@@ -1,6 +1,5 @@
 package com.u9porn.ui.main;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,7 +10,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -23,9 +21,7 @@ import com.orhanobut.logger.Logger;
 import com.qmuiteam.qmui.util.QMUIDisplayHelper;
 import com.qmuiteam.qmui.widget.dialog.QMUIBottomSheet;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
-import com.qmuiteam.qmui.widget.dialog.QMUIDialogAction;
 import com.sdsmdg.tastytoast.TastyToast;
-import com.taobao.sophix.SophixManager;
 import com.u9porn.BuildConfig;
 import com.u9porn.R;
 import com.u9porn.constants.Constants;
@@ -60,8 +56,6 @@ import com.u9porn.utils.SDCardUtils;
 import com.u9porn.utils.Tags;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.PermissionListener;
-import com.yanzhenjie.permission.Rationale;
-import com.yanzhenjie.permission.RationaleListener;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -143,18 +137,11 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
 
         makeDirAndCheckPermission();
 
-        fabSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                doOnFloatingActionButtonClick(selectIndex);
-
-            }
-        });
+        fabSearch.setOnClickListener(v -> doOnFloatingActionButtonClick(selectIndex));
         firstTabShow = presenter.getMainFirstTabShow();
         secondTabShow = presenter.getMainSecondTabShow();
         doOnTabSelected(selectIndex);
-        SophixManager.getInstance().queryAndLoadNewPatch();
-        checkNeedToShowUpdateOrNoticeDialog();
+        //checkNeedToShowUpdateOrNoticeDialog();
     }
 
     private void checkNeedToShowUpdateOrNoticeDialog() {
@@ -197,21 +184,18 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
                 .addItem(ResourceUtil.getDrawable(this, R.drawable.ic_video_library_black_24dp), Tags.TAG_PXGAV_VIDEO)
                 .addItem(ResourceUtil.getDrawable(this, R.drawable.ic_video_library_black_24dp), Tags.TAG_AXGLE_VIDEO)
                 .setCheckedIndex(checkIndex)
-                .setOnSheetItemClickListener(new QMUIBottomSheet.BottomListSheetBuilder.OnSheetItemClickListener() {
-                    @Override
-                    public void onClick(QMUIBottomSheet dialog, View itemView, int position, String tag) {
-                        dialog.dismiss();
-                        switch (tag) {
-                            case Tags.TAG_SEARCH_PORN_AXGLE_VIDEO:
-                                goToSearchVideo();
-                                break;
-                            case Tags.TAG_MY_DOWNLOAD:
-                                Intent intent = new Intent(context, DownloadActivity.class);
-                                startActivityWithAnimation(intent);
-                                break;
-                            default:
-                                handlerFirstTabClickToShow(tag, selectIndex, true);
-                        }
+                .setOnSheetItemClickListener((dialog, itemView, position, tag) -> {
+                    dialog.dismiss();
+                    switch (tag) {
+                        case Tags.TAG_SEARCH_PORN_AXGLE_VIDEO:
+                            goToSearchVideo();
+                            break;
+                        case Tags.TAG_MY_DOWNLOAD:
+                            Intent intent = new Intent(context, DownloadActivity.class);
+                            startActivityWithAnimation(intent);
+                            break;
+                        default:
+                            handlerFirstTabClickToShow(tag, selectIndex, true);
                     }
                 })
                 .build()
@@ -224,12 +208,9 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
                 .addItem(ResourceUtil.getDrawable(this, R.drawable.ic_photo_library_black_24dp), Tags.TAG_MM_99)
                 .addItem(ResourceUtil.getDrawable(this, R.drawable.ic_photo_library_black_24dp), Tags.TAG_HUA_BAN)
                 .setCheckedIndex(checkIndex)
-                .setOnSheetItemClickListener(new QMUIBottomSheet.BottomListSheetBuilder.OnSheetItemClickListener() {
-                    @Override
-                    public void onClick(QMUIBottomSheet dialog, View itemView, int position, String tag) {
-                        dialog.dismiss();
-                        handlerSecondTabClickToShow(tag, selectIndex, true);
-                    }
+                .setOnSheetItemClickListener((dialog, itemView, position, tag) -> {
+                    dialog.dismiss();
+                    handlerSecondTabClickToShow(tag, selectIndex, true);
                 })
                 .build()
                 .show();
@@ -240,19 +221,16 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
                 .addItem(ResourceUtil.getDrawable(this, R.drawable.ic_library_books_black_24dp), "9*PORN论坛")
                 .addItem(ResourceUtil.getDrawable(this, R.drawable.ic_library_books_black_24dp), "CaoLiu社区")
                 .setCheckedIndex(selectIndex)
-                .setOnSheetItemClickListener(new QMUIBottomSheet.BottomListSheetBuilder.OnSheetItemClickListener() {
-                    @Override
-                    public void onClick(QMUIBottomSheet dialog, View itemView, int position, String tag) {
-                        dialog.dismiss();
-                        switch (position) {
-                            case 0:
+                .setOnSheetItemClickListener((dialog, itemView, position, tag) -> {
+                    dialog.dismiss();
+                    switch (position) {
+                        case 0:
 
-                                break;
-                            case 1:
-                                showMessage("还未支持，敬请期待", TastyToast.INFO);
-                                break;
-                            default:
-                        }
+                            break;
+                        case 1:
+                            showMessage("还未支持，敬请期待", TastyToast.INFO);
+                            break;
+                        default:
                     }
                 })
                 .build()
@@ -379,20 +357,12 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
         QMUIDialog.MessageDialogBuilder builder = new QMUIDialog.MessageDialogBuilder(context);
         builder.setTitle("温馨提示");
         builder.setMessage("还未设置对应地址，现在去设置？");
-        builder.addAction("去设置", new QMUIDialogAction.ActionListener() {
-            @Override
-            public void onClick(QMUIDialog dialog, int index) {
-                dialog.dismiss();
-                Intent intent = new Intent(context, SettingActivity.class);
-                startActivityWithAnimation(intent);
-            }
+        builder.addAction("去设置", (dialog, index) -> {
+            dialog.dismiss();
+            Intent intent = new Intent(context, SettingActivity.class);
+            startActivityWithAnimation(intent);
         });
-        builder.addAction("返回", new QMUIDialogAction.ActionListener() {
-            @Override
-            public void onClick(QMUIDialog dialog, int index) {
-                dialog.dismiss();
-            }
-        });
+        builder.addAction("返回", (dialog, index) -> dialog.dismiss());
         builder.show();
     }
 
@@ -409,14 +379,15 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
                 mMainHuaBanFragment = null;
                 break;
             case Tags.TAG_MM_99:
-                if (mMain99MmFragment == null) {
-                    mMain99MmFragment = Main99MmFragment.getInstance();
-                }
-                mCurrentFragment = FragmentUtils.switchContent(fragmentManager, mCurrentFragment, mMain99MmFragment, contentFrameLayout.getId(), itemId, isInnerReplace);
-                secondTabShow = Tags.TAG_MM_99;
-                presenter.setMainSecondTabShow(Tags.TAG_MM_99);
-                mMaiMeiZiTuFragment = null;
-                mMainHuaBanFragment = null;
+//                if (mMain99MmFragment == null) {
+//                    mMain99MmFragment = Main99MmFragment.getInstance();
+//                }
+//                mCurrentFragment = FragmentUtils.switchContent(fragmentManager, mCurrentFragment, mMain99MmFragment, contentFrameLayout.getId(), itemId, isInnerReplace);
+//                secondTabShow = Tags.TAG_MM_99;
+//                presenter.setMainSecondTabShow(Tags.TAG_MM_99);
+//                mMaiMeiZiTuFragment = null;
+//                mMainHuaBanFragment = null;
+                showMessage("停止支持，网址已无法访问", TastyToast.INFO);
                 break;
             case Tags.TAG_HUA_BAN:
 //                if (mMainHuaBanFragment == null) {
@@ -467,12 +438,9 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
             AndPermission.with(this)
                     .requestCode(permisionCode)
                     .permission(permission)
-                    .rationale(new RationaleListener() {
-                        @Override
-                        public void showRequestPermissionRationale(int requestCode, Rationale rationale) {
-                            // 此对话框可以自定义，调用rationale.resume()就可以继续申请。
-                            AndPermission.rationaleDialog(MainActivity.this, rationale).show();
-                        }
+                    .rationale((requestCode, rationale) -> {
+                        // 此对话框可以自定义，调用rationale.resume()就可以继续申请。
+                        AndPermission.rationaleDialog(MainActivity.this, rationale).show();
                     })
                     .callback(listener)
                     .start();
@@ -554,12 +522,9 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
                 super.onBackPressed();
             }
             finishAffinity();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    int pid = android.os.Process.myPid();
-                    android.os.Process.killProcess(pid);
-                }
+            new Handler().postDelayed(() -> {
+                int pid = android.os.Process.myPid();
+                android.os.Process.killProcess(pid);
             }, 500);
         }
     }
@@ -568,27 +533,24 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
         String[] items = {"搜9*Porn视频", "搜a*gle视频"};
         new QMUIDialog.CheckableDialogBuilder(this)
                 .setTitle("搜索啥呀")
-                .addItems(items, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        switch (which) {
-                            case 0:
-                                if (!presenter.isUserLogin()) {
-                                    showMessage("请先登录", TastyToast.INFO);
-                                    Intent intent = new Intent(MainActivity.this, UserLoginActivity.class);
-                                    intent.putExtra(Keys.KEY_INTENT_LOGIN_FOR_ACTION, KeysActivityRequestResultCode.LOGIN_ACTION_FOR_SEARCH_91PRON_VIDEO);
-                                    startActivityForResultWithAnimation(intent, Constants.USER_LOGIN_REQUEST_CODE);
-                                    return;
-                                }
-                                Intent intent = new Intent(MainActivity.this, SearchActivity.class);
-                                startActivityWithAnimation(intent);
-                                break;
-                            case 1:
-                                Intent axgleIntent = new Intent(MainActivity.this, SearchAxgleVideoActivity.class);
-                                startActivityWithAnimation(axgleIntent);
-                                break;
-                        }
+                .addItems(items, (dialog, which) -> {
+                    dialog.dismiss();
+                    switch (which) {
+                        case 0:
+                            if (!presenter.isUserLogin()) {
+                                showMessage("请先登录", TastyToast.INFO);
+                                Intent intent = new Intent(MainActivity.this, UserLoginActivity.class);
+                                intent.putExtra(Keys.KEY_INTENT_LOGIN_FOR_ACTION, KeysActivityRequestResultCode.LOGIN_ACTION_FOR_SEARCH_91PRON_VIDEO);
+                                startActivityForResultWithAnimation(intent, Constants.USER_LOGIN_REQUEST_CODE);
+                                return;
+                            }
+                            Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+                            startActivityWithAnimation(intent);
+                            break;
+                        case 1:
+                            Intent axgleIntent = new Intent(MainActivity.this, SearchAxgleVideoActivity.class);
+                            startActivityWithAnimation(axgleIntent);
+                            break;
                     }
                 })
                 .show();
@@ -599,29 +561,18 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
         QMUIDialog.MessageDialogBuilder builder = new QMUIDialog.MessageDialogBuilder(this);
         builder.setTitle("发现新版本--v" + updateVersion.getVersionName());
         builder.setMessage(updateVersion.getUpdateMessage());
-        builder.addAction("立即更新", new QMUIDialogAction.ActionListener() {
-            @Override
-            public void onClick(QMUIDialog dialog, int index) {
-                dialog.dismiss();
-                showMessage("开始下载", TastyToast.INFO);
-                Intent intent = new Intent(MainActivity.this, UpdateDownloadService.class);
-                intent.putExtra("updateVersion", updateVersion);
-                startService(intent);
-            }
+        builder.addAction("立即更新", (dialog, index) -> {
+            dialog.dismiss();
+            showMessage("开始下载", TastyToast.INFO);
+            Intent intent = new Intent(MainActivity.this, UpdateDownloadService.class);
+            intent.putExtra("updateVersion", updateVersion);
+            startService(intent);
         });
-        builder.addAction("稍后更新", new QMUIDialogAction.ActionListener() {
-            @Override
-            public void onClick(QMUIDialog dialog, int index) {
-                dialog.dismiss();
-            }
-        });
-        builder.addAction("该版本不再提示", new QMUIDialogAction.ActionListener() {
-            @Override
-            public void onClick(QMUIDialog dialog, int index) {
-                //保存版本号，用户对于此版本选择了不在提示
-                presenter.setIgnoreUpdateVersionCode(updateVersion.getVersionCode());
-                dialog.dismiss();
-            }
+        builder.addAction("稍后更新", (dialog, index) -> dialog.dismiss());
+        builder.addAction("该版本不再提示", (dialog, index) -> {
+            //保存版本号，用户对于此版本选择了不在提示
+            presenter.setIgnoreUpdateVersionCode(updateVersion.getVersionCode());
+            dialog.dismiss();
         });
         builder.show();
     }
@@ -630,12 +581,9 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
         QMUIDialog.MessageDialogBuilder builder = new QMUIDialog.MessageDialogBuilder(this);
         builder.setTitle("新公告");
         builder.setMessage(notice.getNoticeMessage());
-        builder.addAction("我知道了", new QMUIDialogAction.ActionListener() {
-            @Override
-            public void onClick(QMUIDialog dialog, int index) {
-                dialog.dismiss();
-                presenter.saveNoticeVersionCode(notice.getVersionCode());
-            }
+        builder.addAction("我知道了", (dialog, index) -> {
+            dialog.dismiss();
+            presenter.saveNoticeVersionCode(notice.getVersionCode());
         });
         builder.show();
     }
@@ -728,28 +676,20 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
         QMUIDialog.MessageDialogBuilder builder = new QMUIDialog.MessageDialogBuilder(this);
         builder.setTitle("温馨提示");
         builder.setMessage("服务器连接发生跳转，新地址为：\n" + urlRedirectEvent.getNewUrl() + "\n原地址：\n" + urlRedirectEvent.getOldUrl() + "\n是否保存为最新地址？");
-        builder.addAction("保存", new QMUIDialogAction.ActionListener() {
-            @Override
-            public void onClick(QMUIDialog dialog, int index) {
-                if (Api.PORN9_VIDEO_DOMAIN_NAME.equals(urlRedirectEvent.getHeader())) {
-                    presenter.setPorn9VideoAddress(urlRedirectEvent.getNewUrl());
-                    showMessage("保存成功", TastyToast.SUCCESS);
-                } else if (Api.PORN9_FORUM_DOMAIN_NAME.equals(urlRedirectEvent.getHeader())) {
-                    presenter.setPorn9ForumAddress(urlRedirectEvent.getNewUrl());
-                    showMessage("保存成功", TastyToast.SUCCESS);
-                } else {
-                    showMessage("保存失败，信息错误", TastyToast.ERROR);
-                }
+        builder.addAction("保存", (dialog, index) -> {
+            if (Api.PORN9_VIDEO_DOMAIN_NAME.equals(urlRedirectEvent.getHeader())) {
+                presenter.setPorn9VideoAddress(urlRedirectEvent.getNewUrl());
+                showMessage("保存成功", TastyToast.SUCCESS);
+            } else if (Api.PORN9_FORUM_DOMAIN_NAME.equals(urlRedirectEvent.getHeader())) {
+                presenter.setPorn9ForumAddress(urlRedirectEvent.getNewUrl());
+                showMessage("保存成功", TastyToast.SUCCESS);
+            } else {
+                showMessage("保存失败，信息错误", TastyToast.ERROR);
+            }
 
-                dialog.dismiss();
-            }
+            dialog.dismiss();
         });
-        builder.addAction("取消", new QMUIDialogAction.ActionListener() {
-            @Override
-            public void onClick(QMUIDialog dialog, int index) {
-                dialog.dismiss();
-            }
-        });
+        builder.addAction("取消", (dialog, index) -> dialog.dismiss());
         builder.show();
     }
 

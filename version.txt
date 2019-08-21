@@ -1,13 +1,11 @@
 {
-"apkDownloadUrl": "https://raw.githubusercontent.com/techGay/v9porn/master/apk/app-v1.0.9.apk",
+"apkDownloadUrl": "https://raw.githubusercontent.com/techGay/v9porn/master/apk/v9porn-v1.1.2.apk",
 "updateMessage": "
-1. 修复9*porn无法登陆问题\n
-2. 9*porn不用登录也可以查看作者的其他视频了\n
-3. 修复P*gav无法播放视频问题\n
-4. 修复九妹图社部分图集无法解析问题\n
-5. 增加A*gle视频搜索\n
-6. 其他改动调整及bug修复
+1. 修复因升级targetSdkVersion28导致的下载以及浏览论坛崩溃问题\n
+2. 现在不登录也能无限制观看作者其他的视频\n
+3. 其他改动调整及bug修复\n
+注意：无法自动更新或者9.0以上系统需要手动下载apk升级
 ",
-"versionCode": 10,
-"versionName": "1.0.9"
+"versionCode": 13,
+"versionName": "1.1.2"
 }

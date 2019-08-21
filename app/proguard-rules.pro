@@ -266,3 +266,4 @@ public static java.lang.String TABLENAME;
 #防止inline
 -dontoptimize
 -dontwarn com.alibaba.sdk.android.utils.**
+-dontwarn cn.qqtheme.framework.util.**

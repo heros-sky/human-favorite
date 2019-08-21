@@ -2,7 +2,6 @@ package com.u9porn.service;
 
 import android.app.Notification;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -10,14 +9,12 @@ import android.text.format.Formatter;
 
 import com.liulishuo.filedownloader.BaseDownloadTask;
 import com.liulishuo.filedownloader.model.FileDownloadStatus;
-import com.u9porn.MyApplication;
 import com.u9porn.R;
+import com.u9porn.constants.Constants;
 import com.u9porn.data.DataManager;
 import com.u9porn.data.db.entity.V9PornItem;
-import com.u9porn.di.component.DaggerServiceComponent;
 import com.u9porn.ui.download.DownloadActivity;
 import com.u9porn.utils.DownloadManager;
-import com.u9porn.constants.Constants;
 import com.u9porn.utils.NotificationChannelHelper;
 
 import java.util.List;

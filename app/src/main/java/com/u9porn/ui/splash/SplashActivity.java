@@ -3,9 +3,9 @@ package com.u9porn.ui.splash;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.widget.Button;
 
 import com.orhanobut.logger.Logger;
-import com.u9porn.BuildConfig;
 import com.u9porn.R;
 import com.u9porn.constants.Keys;
 import com.u9porn.data.model.Notice;
@@ -18,6 +18,10 @@ import java.io.Serializable;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 /**
  * @author flymegoc
  */
@@ -27,13 +31,17 @@ public class SplashActivity extends MvpActivity<SplashView, SplashPresenter> imp
 
     @Inject
     protected SplashPresenter splashPresenter;
+    @BindView(R.id.bt_skip_splash)
+    Button btSkipSplash;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        ButterKnife.bind(this);
         findViewById(android.R.id.content).setPadding(0, 0, 0, 0);
         checkUpdate();
+
     }
 
     private void startMain(String key, Serializable serializable) {
@@ -57,9 +65,6 @@ public class SplashActivity extends MvpActivity<SplashView, SplashPresenter> imp
             Logger.t(TAG).d("获取应用本版失败");
             return;
         }
-        if (BuildConfig.DEBUG){
-            versionCode=1;
-        }
         presenter.checkUpdate(versionCode);
     }
 
@@ -76,25 +81,25 @@ public class SplashActivity extends MvpActivity<SplashView, SplashPresenter> imp
             return;
         }
         //有更新直接跳转主界面并提示更新，不检查公告
-        startMain(Keys.KEY_INTENT_UPDATE,updateVersion);
+        startMain(Keys.KEY_INTENT_UPDATE, updateVersion);
     }
 
 
     @Override
     public void haveNewNotice(Notice notice) {
-        startMain(Keys.KEY_INTENT_NOTICE,notice);
+        startMain(Keys.KEY_INTENT_NOTICE, notice);
     }
 
     @Override
     public void noNewNotice() {
         Logger.t(TAG).d("没有新公告");
-        startMain(null,null);
+        startMain(null, null);
     }
 
     @Override
     public void checkNewNoticeError(String message) {
         Logger.t(TAG).d("检查新公告：" + message);
-        startMain(null,null);
+        startMain(null, null);
     }
 
 
@@ -129,5 +134,14 @@ public class SplashActivity extends MvpActivity<SplashView, SplashPresenter> imp
     @Override
     public void showMessage(String msg, int type) {
         super.showMessage(msg, type);
+    }
+
+    @OnClick(R.id.bt_skip_splash)
+    public void onViewClicked() {
+        Intent intent = new Intent(this, MainActivity.class);
+        //intent.putExtra(key, serializable);
+        startActivity(intent);
+        finish();
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 }

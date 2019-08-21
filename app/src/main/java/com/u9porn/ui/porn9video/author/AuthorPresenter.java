@@ -43,8 +43,8 @@ public class AuthorPresenter extends MvpBasePresenter<AuthorView> implements IAu
     }
 
     @Override
-    public void authorVideos(String uid, final boolean pullToRefresh) {
-        String type = "public";
+    public void authorVideos(String uid, String type,final boolean pullToRefresh) {
+        //String type = "public";
         if (pullToRefresh) {
             page = 1;
             cleanCache = true;

@@ -1,7 +1,5 @@
 package com.u9porn.ui.porn9video.history;
 
-import android.support.annotation.NonNull;
-
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.orhanobut.logger.Logger;
 import com.u9porn.data.DataManager;
@@ -37,22 +35,19 @@ public class HistoryPresenter extends MvpBasePresenter<HistoryView> implements I
             page = 1;
         }
         final List<V9PornItem> v9PornItemList = dataManager.loadHistoryData(page, pageSize);
-        ifViewAttached(new ViewAction<HistoryView>() {
-            @Override
-            public void run(@NonNull HistoryView view) {
-                if (page == 1) {
-                    Logger.t(TAG).d("加载首页");
-                    view.setData(v9PornItemList);
-                } else {
-                    Logger.t(TAG).d("加载更多");
-                    view.setMoreData(v9PornItemList);
-                    view.loadMoreDataComplete();
-                }
-                page++;
-                if (v9PornItemList.size() == 0 || v9PornItemList.size() < pageSize) {
-                    Logger.t(TAG).d("没有更多");
-                    view.noMoreData();
-                }
+        ifViewAttached(view -> {
+            if (page == 1) {
+                Logger.t(TAG).d("加载首页");
+                view.setData(v9PornItemList);
+            } else {
+                Logger.t(TAG).d("加载更多");
+                view.setMoreData(v9PornItemList);
+                view.loadMoreDataComplete();
+            }
+            page++;
+            if (v9PornItemList.size() == 0 || v9PornItemList.size() < pageSize) {
+                Logger.t(TAG).d("没有更多");
+                view.noMoreData();
             }
         });
     }

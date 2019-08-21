@@ -6,6 +6,6 @@ package com.u9porn.ui.porn9video.author;
  */
 
 public interface IAuthor {
-    void authorVideos(String uid,boolean pullToRefresh);
+    void authorVideos(String uid, String type,boolean pullToRefresh);
     boolean isUserLogin();
 }

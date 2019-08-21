@@ -33,7 +33,7 @@ public class ParsePxgav {
     public static BaseResult<PxgavVideoParserJsonResult> parserVideoUrl(String html) {
         BaseResult<PxgavVideoParserJsonResult> baseResult = new BaseResult<>();
         Document document = Jsoup.parse(html);
-        Element videoWrapper = document.getElementsByClass("td-post-content td-pb-padding-side").first();
+        Element videoWrapper = document.getElementsByClass("penci-entry-content entry-content").first();
         String videoHtml = videoWrapper.html();
         Logger.t(TAG).d(videoHtml);
         int index = videoHtml.indexOf("setup") + 6;
@@ -43,7 +43,7 @@ public class ParsePxgav {
 
         PxgavVideoParserJsonResult pxgavVideoParserJsonResult = new Gson().fromJson(videoUrl, PxgavVideoParserJsonResult.class);
 
-        Elements items = document.getElementsByClass("td-block-span12");
+        Elements items = document.getElementsByClass("penci-block_content").first().select("article");
         List<PxgavModel> pxgavModelList = new ArrayList<>();
         for (Element element : items) {
             PxgavModel pxgavModel = new PxgavModel();
@@ -52,24 +52,21 @@ public class ParsePxgav {
             pxgavModel.setTitle(title);
             String contentUrl = a.attr("href");
             pxgavModel.setContentUrl(contentUrl);
-            Element img = element.selectFirst("img");
-            String imgUrl = img.attr("src");
-            int beginIndex = imgUrl.lastIndexOf("/");
-            int endIndex = imgUrl.indexOf("-");
-            String bigImg = StringUtils.subString(imgUrl, 0, endIndex);
+            String imgUrl = a.attr("style");
+
+            String bigImg = StringUtils.subString(imgUrl, imgUrl.indexOf("url(") + 4, imgUrl.lastIndexOf("-"));
+            Logger.t(TAG).d(bigImg);
             if (TextUtils.isEmpty(bigImg)) {
                 pxgavModel.setImgUrl(imgUrl);
             } else {
                 pxgavModel.setImgUrl(bigImg + ".jpg");
             }
+            int beginIndex = bigImg.lastIndexOf("/");
+            int endIndex = bigImg.lastIndexOf("-");
             String pId = StringUtils.subString(imgUrl, beginIndex + 1, endIndex);
-           // Logger.t(TAG).d(pId);
+            //Logger.t(TAG).d(pId);
             pxgavModel.setpId(pId);
 
-            int imgWidth = Integer.parseInt(img.attr("width"));
-            pxgavModel.setImgWidth(imgWidth);
-            int imgHeight = Integer.parseInt(img.attr("height"));
-            pxgavModel.setImgHeight(imgHeight);
             pxgavModelList.add(pxgavModel);
         }
         pxgavVideoParserJsonResult.setPxgavModelList(pxgavModelList);
@@ -80,12 +77,12 @@ public class ParsePxgav {
     public static BaseResult<PxgavResultWithBlockId> videoList(String html, boolean isLoadMoreData) {
         BaseResult<PxgavResultWithBlockId> baseResult = new BaseResult<>();
 
-        PxgavResultWithBlockId pxgavResultWithBlockId=new PxgavResultWithBlockId();
+        PxgavResultWithBlockId pxgavResultWithBlockId = new PxgavResultWithBlockId();
 
         baseResult.setTotalPage(1);
-
+        Logger.t(TAG).d(html);
         Document doc = Jsoup.parse(html);
-        Elements items = doc.getElementsByClass("td-block-span4");
+        Elements items = doc.getElementsByClass("penci-block_content").first().select("article");
         List<PxgavModel> pxgavModelList = new ArrayList<>();
         for (Element element : items) {
             PxgavModel pxgavModel = new PxgavModel();
@@ -94,28 +91,25 @@ public class ParsePxgav {
             pxgavModel.setTitle(title);
             String contentUrl = a.attr("href");
             pxgavModel.setContentUrl(contentUrl);
-            Element img = element.selectFirst("img");
-            String imgUrl = img.attr("src");
-            int beginIndex = imgUrl.lastIndexOf("/");
-            int endIndex = imgUrl.lastIndexOf("-");
-            String bigImg = StringUtils.subString(imgUrl, 0, endIndex);
+            String imgUrl = a.attr("style");
+
+            String bigImg = StringUtils.subString(imgUrl, imgUrl.indexOf("url(") + 4, imgUrl.lastIndexOf("-"));
+            Logger.t(TAG).d(bigImg);
             if (TextUtils.isEmpty(bigImg)) {
                 pxgavModel.setImgUrl(imgUrl);
             } else {
                 pxgavModel.setImgUrl(bigImg + ".jpg");
             }
+            int beginIndex = bigImg.lastIndexOf("/");
+            int endIndex = bigImg.lastIndexOf("-");
             String pId = StringUtils.subString(imgUrl, beginIndex + 1, endIndex);
             //Logger.t(TAG).d(pId);
             pxgavModel.setpId(pId);
 
-            int imgWidth = Integer.parseInt(img.attr("width"));
-            pxgavModel.setImgWidth(imgWidth);
-            int imgHeight = Integer.parseInt(img.attr("height"));
-            pxgavModel.setImgHeight(imgHeight);
             pxgavModelList.add(pxgavModel);
         }
         pxgavResultWithBlockId.setPxgavModelList(pxgavModelList);
-        if (isLoadMoreData){
+        if (isLoadMoreData) {
             baseResult.setData(pxgavResultWithBlockId);
             return baseResult;
         }
@@ -128,7 +122,7 @@ public class ParsePxgav {
                 int startIndex = dat.indexOf(label);
                 Logger.t(TAG).d(dat);
                 try {
-                    String blockId=dat.substring(startIndex + label.length()).replace("\"", "");
+                    String blockId = dat.substring(startIndex + label.length()).replace("\"", "");
                     pxgavResultWithBlockId.setBlockId(blockId);
                     Logger.t(TAG).d("blockId数据：" + blockId);
                 } catch (Exception e) {
@@ -142,12 +136,12 @@ public class ParsePxgav {
         return baseResult;
     }
 
-    public static BaseResult<List<PxgavModel>> moreVideoList(String html) {
-        BaseResult<List<PxgavModel>> baseResult = new BaseResult<>();
+    public static BaseResult<PxgavResultWithBlockId> moreVideoList(String html) {
+        BaseResult<PxgavResultWithBlockId> baseResult = new BaseResult<>();
         baseResult.setTotalPage(1);
 
         Document doc = Jsoup.parse(html);
-        Elements items = doc.getElementsByClass("td-block-span4");
+        Elements items = doc.select("article");
         List<PxgavModel> pxgavModelList = new ArrayList<>();
         for (Element element : items) {
             PxgavModel pxgavModel = new PxgavModel();
@@ -156,27 +150,26 @@ public class ParsePxgav {
             pxgavModel.setTitle(title);
             String contentUrl = a.attr("href");
             pxgavModel.setContentUrl(contentUrl);
-            Element img = element.selectFirst("img");
-            String imgUrl = img.attr("src");
-            int beginIndex = imgUrl.lastIndexOf("/");
-            int endIndex = imgUrl.lastIndexOf("-");
-            String bigImg = StringUtils.subString(imgUrl, 0, endIndex);
+            String imgUrl = a.attr("style");
+
+            String bigImg = StringUtils.subString(imgUrl, imgUrl.indexOf("url(") + 4, imgUrl.lastIndexOf("-"));
+            Logger.t(TAG).d(bigImg);
             if (TextUtils.isEmpty(bigImg)) {
                 pxgavModel.setImgUrl(imgUrl);
             } else {
                 pxgavModel.setImgUrl(bigImg + ".jpg");
             }
+            int beginIndex = bigImg.lastIndexOf("/");
+            int endIndex = bigImg.lastIndexOf("-");
             String pId = StringUtils.subString(imgUrl, beginIndex + 1, endIndex);
-            Logger.t(TAG).d(pId);
+            //Logger.t(TAG).d(pId);
             pxgavModel.setpId(pId);
 
-            int imgWidth = Integer.parseInt(img.attr("width"));
-            pxgavModel.setImgWidth(imgWidth);
-            int imgHeight = Integer.parseInt(img.attr("height"));
-            pxgavModel.setImgHeight(imgHeight);
             pxgavModelList.add(pxgavModel);
         }
-        baseResult.setData(pxgavModelList);
+        PxgavResultWithBlockId pxgavResultWithBlockId = new PxgavResultWithBlockId();
+        pxgavResultWithBlockId.setPxgavModelList(pxgavModelList);
+        baseResult.setData(pxgavResultWithBlockId);
         return baseResult;
     }
 }

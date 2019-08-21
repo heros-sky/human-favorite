@@ -30,8 +30,12 @@ public class ParseMeiZiTu {
         Elements lis = ulPins.select("li");
         List<MeiZiTu> meiZiTuList = new ArrayList<>();
         for (Element li : lis) {
+            Element contentElement = li.select("a").first();
+            if (contentElement == null) {
+                continue;
+            }
             MeiZiTu meiZiTu = new MeiZiTu();
-            String contentUrl = li.select("a").first().attr("href");
+            String contentUrl = contentElement.attr("href");
             //meiZiTu.setContentUrl(contentUrl);
             int index = contentUrl.lastIndexOf("/");
             if (index >= 0 && index + 1 < contentUrl.length()) {
@@ -53,8 +57,8 @@ public class ParseMeiZiTu {
             meiZiTu.setWidth(width);
             String date = li.getElementsByClass("time").first().text();
             meiZiTu.setDate(date);
-            String viewCount = li.getElementsByClass("view").first().text();
-            meiZiTu.setViewCount(viewCount);
+//            String viewCount = li.getElementsByClass("view").first().text();
+//            meiZiTu.setViewCount(viewCount);
             meiZiTuList.add(meiZiTu);
         }
         Logger.t(TAG).d("size::" + meiZiTuList.size());

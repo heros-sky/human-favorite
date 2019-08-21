@@ -85,33 +85,25 @@ public class PxgavPresenter extends MvpBasePresenter<PxgavView> implements IPxga
             lastBlockId = "td_uid_11_5c30cc4f62e14";
         }
         dataManager.loadMorePxgavListByCategory(category, page, lastBlockId, pullToRefresh)
-                .compose(RxSchedulersHelper.<PxgavResultWithBlockId>ioMainThread())
-                .compose(provider.<PxgavResultWithBlockId>bindUntilEvent(Lifecycle.Event.ON_DESTROY))
+                .compose(RxSchedulersHelper.ioMainThread())
+                .compose(provider.bindUntilEvent(Lifecycle.Event.ON_DESTROY))
                 .subscribe(new CallBackWrapper<PxgavResultWithBlockId>() {
                     @Override
                     public void onSuccess(final PxgavResultWithBlockId pxgavResultWithBlockId) {
-                        ifViewAttached(new ViewAction<PxgavView>() {
-                            @Override
-                            public void run(@NonNull PxgavView view) {
-                                if (pxgavResultWithBlockId.getPxgavModelList().size() == 0) {
-                                    Logger.t(TAG).d("没有数据哦");
-                                } else {
-                                    lastBlockId = pxgavResultWithBlockId.getBlockId();
-                                    view.setMoreData(pxgavResultWithBlockId.getPxgavModelList());
-                                    page++;
-                                }
+                        ifViewAttached(view -> {
+                            if (pxgavResultWithBlockId.getPxgavModelList().size() == 0) {
+                                Logger.t(TAG).d("没有数据哦");
+                            } else {
+                                lastBlockId = pxgavResultWithBlockId.getBlockId();
+                                view.setMoreData(pxgavResultWithBlockId.getPxgavModelList());
+                                page++;
                             }
                         });
                     }
 
                     @Override
                     public void onError(String msg, int code) {
-                        ifViewAttached(new ViewAction<PxgavView>() {
-                            @Override
-                            public void run(@NonNull PxgavView view) {
-                                view.loadMoreFailed();
-                            }
-                        });
+                        ifViewAttached(PxgavView::loadMoreFailed);
                     }
                 });
 

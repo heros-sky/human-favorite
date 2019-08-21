@@ -1,13 +1,13 @@
 package com.u9porn.ui.splash;
 
-import android.support.annotation.NonNull;
-
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.u9porn.data.DataManager;
 import com.u9porn.data.model.Notice;
 import com.u9porn.data.model.UpdateVersion;
 import com.u9porn.ui.notice.NoticePresenter;
+import com.u9porn.ui.notice.NoticeView;
 import com.u9porn.ui.update.UpdatePresenter;
+import com.u9porn.ui.update.UpdateView;
 
 import javax.inject.Inject;
 
@@ -44,32 +44,17 @@ public class SplashPresenter extends MvpBasePresenter<SplashView> implements ISp
         updatePresenter.checkUpdate(versionCode, new UpdatePresenter.UpdateListener() {
             @Override
             public void needUpdate(final UpdateVersion updateVersion) {
-                ifViewAttached(new ViewAction<SplashView>() {
-                    @Override
-                    public void run(@NonNull SplashView view) {
-                        view.needUpdate(updateVersion);
-                    }
-                });
+                ifViewAttached(view -> view.needUpdate(updateVersion));
             }
 
             @Override
             public void noNeedUpdate() {
-                ifViewAttached(new ViewAction<SplashView>() {
-                    @Override
-                    public void run(@NonNull SplashView view) {
-                        view.noNeedUpdate();
-                    }
-                });
+                ifViewAttached(UpdateView::noNeedUpdate);
             }
 
             @Override
             public void checkUpdateError(final String message) {
-                ifViewAttached(new ViewAction<SplashView>() {
-                    @Override
-                    public void run(@NonNull SplashView view) {
-                        view.checkUpdateError(message);
-                    }
-                });
+                ifViewAttached(view -> view.checkUpdateError(message));
             }
         });
     }
@@ -79,32 +64,17 @@ public class SplashPresenter extends MvpBasePresenter<SplashView> implements ISp
         noticePresenter.checkNewNotice(new NoticePresenter.CheckNewNoticeListener() {
             @Override
             public void haveNewNotice(final Notice notice) {
-                ifViewAttached(new ViewAction<SplashView>() {
-                    @Override
-                    public void run(@NonNull SplashView view) {
-                        view.haveNewNotice(notice);
-                    }
-                });
+                ifViewAttached(view -> view.haveNewNotice(notice));
             }
 
             @Override
             public void noNewNotice() {
-                ifViewAttached(new ViewAction<SplashView>() {
-                    @Override
-                    public void run(@NonNull SplashView view) {
-                        view.noNewNotice();
-                    }
-                });
+                ifViewAttached(NoticeView::noNewNotice);
             }
 
             @Override
             public void checkNewNoticeError(final String message) {
-                ifViewAttached(new ViewAction<SplashView>() {
-                    @Override
-                    public void run(@NonNull SplashView view) {
-                        view.checkNewNoticeError(message);
-                    }
-                });
+                ifViewAttached(view -> view.checkNewNoticeError(message));
             }
         });
     }

@@ -15,8 +15,6 @@ public class PxgavModel implements Serializable {
     private String contentUrl;
     private String imgUrl;
     private String pId;
-    private int imgWidth;
-    private int imgHeight;
 
     public String getTitle() {
         return title;
@@ -48,21 +46,5 @@ public class PxgavModel implements Serializable {
 
     public void setImgUrl(String imgUrl) {
         this.imgUrl = imgUrl;
-    }
-
-    public int getImgWidth() {
-        return imgWidth;
-    }
-
-    public void setImgWidth(int imgWidth) {
-        this.imgWidth = imgWidth;
-    }
-
-    public int getImgHeight() {
-        return imgHeight;
-    }
-
-    public void setImgHeight(int imgHeight) {
-        this.imgHeight = imgHeight;
     }
 }

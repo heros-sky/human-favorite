@@ -1,7 +1,6 @@
 package com.u9porn.ui.images.viewimage;
 
 import android.annotation.TargetApi;
-import android.content.DialogInterface;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -13,12 +12,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ImageView;
 
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.github.chrisbanes.photoview.PhotoView;
-import com.github.chrisbanes.photoview.PhotoViewAttacher;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u9porn.R;
@@ -63,12 +60,9 @@ public class PhotoImageActivity extends AppCompatActivity {
             //透明导航栏
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         }
-        img.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                showSavePictureDialog(imgUrl);
-                return true;
-            }
+        img.setOnLongClickListener(v -> {
+            showSavePictureDialog(imgUrl);
+            return true;
         });
     }
 
@@ -80,32 +74,29 @@ public class PhotoImageActivity extends AppCompatActivity {
             saveUrl=imageUrl;
         }
         QMUIDialog.MenuDialogBuilder builder = new QMUIDialog.MenuDialogBuilder(this);
-        builder.addItem("保存原图", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                GlideApp.with(PhotoImageActivity.this).downloadOnly().load(Uri.parse(saveUrl)).into(new SimpleTarget<File>() {
-                    @Override
-                    public void onResourceReady(@NonNull File resource, @Nullable Transition<? super File> transition) {
-                        File filePath = new File(SDCardUtils.DOWNLOAD_IMAGE_PATH);
-                        if (!filePath.exists()) {
-                            if (!filePath.mkdirs()) {
-                                showMessage("创建文件夹失败了", TastyToast.ERROR);
-                                return;
-                            }
-                        }
-                        File file = new File(filePath, UUID.randomUUID().toString() + ".jpg");
-                        try {
-                            FileUtils.copyFile(resource, file);
-                            showMessage("保存图片成功了", TastyToast.SUCCESS);
-                            notifySystemGallery(file);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            showMessage("保存图片失败了", TastyToast.ERROR);
+        builder.addItem("保存原图", (dialog, which) -> {
+            GlideApp.with(PhotoImageActivity.this).downloadOnly().load(Uri.parse(saveUrl)).into(new SimpleTarget<File>() {
+                @Override
+                public void onResourceReady(@NonNull File resource, @Nullable Transition<? super File> transition) {
+                    File filePath = new File(SDCardUtils.DOWNLOAD_IMAGE_PATH);
+                    if (!filePath.exists()) {
+                        if (!filePath.mkdirs()) {
+                            showMessage("创建文件夹失败了", TastyToast.ERROR);
+                            return;
                         }
                     }
-                });
-                dialog.dismiss();
-            }
+                    File file = new File(filePath, UUID.randomUUID().toString() + ".jpg");
+                    try {
+                        FileUtils.copyFile(resource, file);
+                        showMessage("保存图片成功了", TastyToast.SUCCESS);
+                        notifySystemGallery(file);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        showMessage("保存图片失败了", TastyToast.ERROR);
+                    }
+                }
+            });
+            dialog.dismiss();
         });
         builder.show();
     }
@@ -138,22 +129,18 @@ public class PhotoImageActivity extends AppCompatActivity {
 
     private void setUiFlags(boolean fullscreen) {
         View decorView = getWindow().getDecorView();
-        if (decorView != null) {
-            decorView.setSystemUiVisibility(fullscreen ? getFullscreenUiFlags() : View.SYSTEM_UI_FLAG_VISIBLE);
-        }
+        decorView.setSystemUiVisibility(fullscreen ? getFullscreenUiFlags() : View.SYSTEM_UI_FLAG_VISIBLE);
     }
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private int getFullscreenUiFlags() {
         int flags = View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-        }
+        flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             flags |= View.SYSTEM_UI_FLAG_IMMERSIVE;
         }

@@ -13,16 +13,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.qmuiteam.qmui.util.QMUIDisplayHelper;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u9porn.R;
-import com.u9porn.adapter.PaAdapter;
+import com.u9porn.adapter.PxgavAdapter;
+import com.u9porn.constants.Keys;
 import com.u9porn.data.model.pxgav.PxgavModel;
 import com.u9porn.ui.MvpFragment;
 import com.u9porn.ui.pxgav.playpxgav.PlayPxgavActivity;
 import com.u9porn.utils.AppUtils;
-import com.u9porn.constants.Keys;
 
 import java.util.List;
 
@@ -45,7 +43,7 @@ public class PxgavFragment extends MvpFragment<PxgavView, PxgavPresenter> implem
     @BindView(R.id.swipe_layout)
     SwipeRefreshLayout swipeLayout;
     Unbinder unbinder;
-    private PaAdapter piaAvAdapter;
+    private PxgavAdapter pxgavAdapter;
 
     @Inject
     protected PxgavPresenter pigAvPresenter;
@@ -57,7 +55,7 @@ public class PxgavFragment extends MvpFragment<PxgavView, PxgavPresenter> implem
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        piaAvAdapter = new PaAdapter(R.layout.item_pav);
+        pxgavAdapter = new PxgavAdapter(R.layout.item_pxgav);
     }
 
     @Override
@@ -81,27 +79,21 @@ public class PxgavFragment extends MvpFragment<PxgavView, PxgavPresenter> implem
         unbinder = ButterKnife.bind(this, view);
         swipeLayout.setOnRefreshListener(this);
         AppUtils.setColorSchemeColors(context, swipeLayout);
-        piaAvAdapter.setWidth(QMUIDisplayHelper.getScreenWidth(context));
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        recyclerView.setAdapter(piaAvAdapter);
-        piaAvAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                PxgavModel pxgavModel = (PxgavModel) adapter.getItem(position);
-                if (pxgavModel == null) {
-                    return;
-                }
-                Intent intent = new Intent(context, PlayPxgavActivity.class);
-                intent.putExtra(Keys.KEY_INTENT_PAV_ITEM, pxgavModel);
-                startActivityWithAnimation(intent);
+        recyclerView.setAdapter(pxgavAdapter);
+        pxgavAdapter.setOnItemClickListener((adapter, view1, position) -> {
+            PxgavModel pxgavModel = (PxgavModel) adapter.getItem(position);
+            if (pxgavModel == null) {
+                return;
             }
+            Intent intent = new Intent(context, PlayPxgavActivity.class);
+            intent.putExtra(Keys.KEY_INTENT_PAV_ITEM, pxgavModel);
+            startActivityWithAnimation(intent);
         });
-        piaAvAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
-            @Override
-            public void onLoadMoreRequested() {
-                presenter.moreVideoList(category.getCategoryValue(), false);
-            }
-        });
+        //主页没有更多
+        if (!"index".equalsIgnoreCase(category.getCategoryValue())) {
+            pxgavAdapter.setOnLoadMoreListener(() -> presenter.moreVideoList(category.getCategoryValue(), false));
+        }
     }
 
     @Override
@@ -122,23 +114,23 @@ public class PxgavFragment extends MvpFragment<PxgavView, PxgavPresenter> implem
 
     @Override
     public void setData(List<PxgavModel> pxgavModelList) {
-        piaAvAdapter.setNewData(pxgavModelList);
+        pxgavAdapter.setNewData(pxgavModelList);
     }
 
     @Override
     public void loadMoreFailed() {
-        piaAvAdapter.loadMoreFail();
+        pxgavAdapter.loadMoreFail();
     }
 
     @Override
     public void noMoreData() {
-        piaAvAdapter.loadMoreEnd(true);
+        pxgavAdapter.loadMoreEnd(true);
     }
 
     @Override
     public void setMoreData(List<PxgavModel> pxgavModelList) {
-        piaAvAdapter.loadMoreComplete();
-        piaAvAdapter.addData(pxgavModelList);
+        pxgavAdapter.loadMoreComplete();
+        pxgavAdapter.addData(pxgavModelList);
     }
 
     @Override

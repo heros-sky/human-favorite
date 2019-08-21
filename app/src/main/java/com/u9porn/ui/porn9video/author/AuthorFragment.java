@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Switch;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.orhanobut.logger.Logger;
@@ -40,6 +41,8 @@ import butterknife.Unbinder;
 public class AuthorFragment extends MvpFragment<AuthorView, AuthorPresenter> implements AuthorView {
 
     private static final String TAG = AuthorFragment.class.getSimpleName();
+//    @BindView(R.id.type_switch)
+//    Switch type_switch;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
     @BindView(R.id.swipe_layout)
@@ -57,6 +60,10 @@ public class AuthorFragment extends MvpFragment<AuthorView, AuthorPresenter> imp
     public AuthorFragment() {
         // Required empty public constructor
         Logger.t(TAG).d("AuthorFragment初始化了.....");
+    }
+
+    public String get_type(){
+        return "public";
     }
 
     @Override
@@ -78,7 +85,7 @@ public class AuthorFragment extends MvpFragment<AuthorView, AuthorPresenter> imp
             @Override
             public void onLoadMoreRequested() {
                 if (canLoadAuthorVideos()) {
-                    presenter.authorVideos(v9PornItem.getVideoResult().getOwnerId(), false);
+                    presenter.authorVideos(v9PornItem.getVideoResult().getOwnerId(), get_type(), false);
                 }
 
             }
@@ -110,7 +117,7 @@ public class AuthorFragment extends MvpFragment<AuthorView, AuthorPresenter> imp
             @Override
             public void onRefresh() {
                 if (canLoadAuthorVideos()) {
-                    presenter.authorVideos(v9PornItem.getVideoResult().getOwnerId(), true);
+                    presenter.authorVideos(v9PornItem.getVideoResult().getOwnerId(), get_type(),true);
                 }
             }
         });
@@ -126,7 +133,7 @@ public class AuthorFragment extends MvpFragment<AuthorView, AuthorPresenter> imp
     }
 
     public void loadAuthorVideos() {
-        presenter.authorVideos(v9PornItem.getVideoResult().getOwnerId(), false);
+        presenter.authorVideos(v9PornItem.getVideoResult().getOwnerId(), get_type(), false);
 
     }
 

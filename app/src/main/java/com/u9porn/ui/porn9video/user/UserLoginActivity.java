@@ -1,6 +1,5 @@
 package com.u9porn.ui.porn9video.user;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -177,20 +176,14 @@ public class UserLoginActivity extends MvpActivity<UserView, UserPresenter> impl
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogTheme);
         builder.setTitle("温馨提示");
         builder.setMessage("还未设置91porn视频地址,无法登录或注册，现在去设置？");
-        builder.setPositiveButton("去设置", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(context, SettingActivity.class);
-                startActivityWithAnimation(intent);
-                finish();
-            }
+        builder.setPositiveButton("去设置", (dialog, which) -> {
+            Intent intent = new Intent(context, SettingActivity.class);
+            startActivityWithAnimation(intent);
+            finish();
         });
-        builder.setNegativeButton("退出", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                onBackPressed();
-            }
+        builder.setNegativeButton("退出", (dialog, which) -> {
+            dialog.dismiss();
+            onBackPressed();
         });
         builder.setCancelable(false);
         builder.show();

@@ -1,5 +1,7 @@
 package com.u9porn;
 
+import android.content.Context;
+import android.support.multidex.MultiDex;
 import android.support.v7.app.AppCompatDelegate;
 
 import com.helper.loadviewhelper.load.LoadViewHelper;
@@ -48,12 +50,18 @@ public class MyApplication extends DaggerApplication {
             //初始化bug收集
           //  Bugsnag.init(this);
         }
-        CrashReport.initCrashReport(getApplicationContext(), "", BuildConfig.DEBUG);
+        CrashReport.initCrashReport(getApplicationContext(), "e426041d83", BuildConfig.DEBUG);
         BGASwipeBackHelper.init(this, null);
     }
 
     public static MyApplication getInstance() {
         return myApplication;
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 
     private void initNightMode() {

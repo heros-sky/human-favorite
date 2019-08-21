@@ -21,7 +21,6 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.github.rubensousa.floatingtoolbar.FloatingToolbar;
-import com.helper.loadviewhelper.help.OnLoadViewListener;
 import com.helper.loadviewhelper.load.LoadViewHelper;
 import com.jaeger.library.StatusBarUtil;
 import com.orhanobut.logger.Logger;
@@ -212,12 +211,7 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
 
     private void initLoadHelper() {
         helper = new LoadViewHelper(viewPagerPlay);
-        helper.setListener(new OnLoadViewListener() {
-            @Override
-            public void onRetryClick() {
-                presenter.loadVideoUrl(v9PornItem);
-            }
-        });
+        helper.setListener(() -> presenter.loadVideoUrl(v9PornItem));
     }
 
     private void initDialog() {
