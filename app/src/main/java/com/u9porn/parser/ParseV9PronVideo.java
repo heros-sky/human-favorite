@@ -211,7 +211,13 @@ public class ParseV9PronVideo {
             return videoResult;
         }
         Document doc = Jsoup.parse(html);
-        String videoUrl = doc.select("video").first().select("source").first().attr("src");
+        String videoUrl = "";
+        try{
+            videoUrl = doc.select("video").first().select("source").first().attr("src");
+        }catch (Exception e){
+
+        }
+
         if(!videoUrl.startsWith("http")){
             final String reg = "document.write\\(strencode\\(\"(.+)\",\"(.+)\",.+\\)\\);";
             Pattern p = Pattern.compile(reg);
