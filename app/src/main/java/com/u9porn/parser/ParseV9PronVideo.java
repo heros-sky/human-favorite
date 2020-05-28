@@ -38,29 +38,35 @@ public class ParseV9PronVideo {
      * @return 视频列表
      */
     public static List<V9PornItem> parseIndex(String html) {
+        Logger.t(TAG).d(html);
+//        html= DevHtmlTools.getLocalHtml(MyApplication.getInstance(),"LocalHtml.text");
         List<V9PornItem> v9PornItemList = new ArrayList<>();
         Document doc = Jsoup.parse(html);
-        Element body = doc.getElementById("tab-featured");
-        Elements itms = body.select("p");
-        for (Element element : itms) {
+        Elements bodys = doc.select("body");
+        if(bodys==null||bodys.isEmpty()){
+            return v9PornItemList;
+        }
+        Element body=bodys.first();
+        Elements items=body.select("div[class=col-xs-12 col-sm-4 col-md-3 col-lg-3]");
+        for (Element element : items) {
             V9PornItem v9PornItem = new V9PornItem();
 
-            String title = element.getElementsByClass("title").first().text();
+            String title = element.getElementsByClass("video-title title-truncate m-t-5").first().text();
             v9PornItem.setTitle(title);
-            // Logger.d(title);
+            Logger.d(title);
 
-            String imgUrl = element.select("img").first().attr("src");
+            String imgUrl = element.select("img[class=img-responsive]").first().attr("src");
             v9PornItem.setImgUrl(imgUrl);
-            // Logger.d(imgUrl);
+            Logger.d(imgUrl);
 
-            String duration = element.getElementsByClass("duration").first().text();
+            String duration = element.select("span[class=duration]").first().text();
             v9PornItem.setDuration(duration);
-            //Logger.d(duration);
+            Logger.d(duration);
 
             String contentUrl = element.select("a").first().attr("href");
-            String viewKey = contentUrl.substring(contentUrl.indexOf("=") + 1);
+            String viewKey = contentUrl.substring(contentUrl.indexOf("=") + 1,contentUrl.indexOf("&"));
             v9PornItem.setViewKey(viewKey);
-            // Logger.d(viewKey);
+            Logger.d(viewKey);
 
             String allInfo = element.text();
             int start = allInfo.indexOf("添加时间");
@@ -81,12 +87,20 @@ public class ParseV9PronVideo {
      */
     public static BaseResult<List<V9PornItem>> parseByCategory(String html) {
         int totalPage = 1;
+//        html= DevHtmlTools.getLocalHtml(MyApplication.getInstance(),"category.txt");
         List<V9PornItem> v9PornItemList = new ArrayList<>();
         Document doc = Jsoup.parse(html);
-        Element body = doc.getElementById("fullside");
+        Elements bodys = doc.select("body");
+        if(bodys==null||bodys.isEmpty()){
+            BaseResult<List<V9PornItem>> baseResult = new BaseResult<>();
+            baseResult.setTotalPage(0);
+            baseResult.setData(v9PornItemList);
+            return baseResult;
+        }
+        Element body=bodys.first();
+        Elements items=body.select("div[class=col-xs-12 col-sm-4 col-md-3 col-lg-3]");
 
-        Elements listchannel = body.getElementsByClass("listchannel");
-        for (Element element : listchannel) {
+        for (Element element : items) {
             V9PornItem v9PornItem = new V9PornItem();
             String contentUrl = element.select("a").first().attr("href");
             //Logger.d(contentUrl);
@@ -95,11 +109,11 @@ public class ParseV9PronVideo {
             String viewKey = contentUrl.substring(contentUrl.indexOf("=") + 1);
             v9PornItem.setViewKey(viewKey);
 
-            String imgUrl = element.select("a").first().select("img").first().attr("src");
+            String imgUrl = element.select("img[class=img-responsive]").first().attr("src");
             //  Logger.d(imgUrl);
             v9PornItem.setImgUrl(imgUrl);
 
-            String title = element.select("a").first().select("img").first().attr("title");
+            String title = element.getElementsByClass("video-title title-truncate m-t-5").first().text();
             //  Logger.d(title);
             v9PornItem.setTitle(title);
 
@@ -137,38 +151,50 @@ public class ParseV9PronVideo {
     public static BaseResult<List<V9PornItem>> parseSearchVideos(String html) {
         int totalPage = 1;
         List<V9PornItem> v9PornItemList = new ArrayList<>();
+//        html= DevHtmlTools.getLocalHtml(MyApplication.getInstance(),"search.txt");
         Document doc = Jsoup.parse(html);
-        Element body = doc.getElementById("fullside");
-        if (body == null) {
-            String errorMsg = parseErrorInfo(html);
-            Logger.t(TAG).d(errorMsg);
-            BaseResult<List<V9PornItem>> baseResult = new BaseResult<>();
+//        Element body = doc.getElementById("fullside");
 
+        Elements bodys = doc.select("body");
+        if(bodys==null||bodys.isEmpty()){
+            BaseResult<List<V9PornItem>> baseResult = new BaseResult<>();
             baseResult.setCode(BaseResult.ERROR_CODE);
+            String errorMsg = parseErrorInfo(html);
             baseResult.setMessage(errorMsg);
             return baseResult;
         }
-        Elements listchannel = body.getElementsByClass("listchannel");
-        for (Element element : listchannel) {
+        Element body=bodys.first();
+        Elements items=body.select("div[class=col-xs-12 col-sm-4 col-md-3 col-lg-3]");
+//        if (body == null) {
+//            String errorMsg = parseErrorInfo(html);
+//            Logger.t(TAG).d(errorMsg);
+//            BaseResult<List<V9PornItem>> baseResult = new BaseResult<>();
+//
+//            baseResult.setCode(BaseResult.ERROR_CODE);
+//            baseResult.setMessage(errorMsg);
+//            return baseResult;
+//        }
+//        Elements listchannel = body.getElementsByClass("listchannel");
+        for (Element element : items) {
             V9PornItem v9PornItem = new V9PornItem();
             String contentUrl = element.select("a").first().attr("href");
             //Logger.d(contentUrl);
-            contentUrl = contentUrl.substring(0, contentUrl.indexOf("&"));
+            //contentUrl = contentUrl.substring(0, contentUrl.indexOf("&"));
             //Logger.d(contentUrl);
 
             String viewKey = contentUrl.substring(contentUrl.indexOf("=") + 1);
             v9PornItem.setViewKey(viewKey);
             //Logger.d(viewKey);
 
-            String imgUrl = element.select("a").first().select("img").first().attr("src");
+            String imgUrl = element.select("img[class=img-responsive]").first().attr("src");
             //Logger.d(imgUrl);
             v9PornItem.setImgUrl(imgUrl);
 
-            String title = element.select("span.title").text();
+            String title = element.getElementsByClass("video-title title-truncate m-t-5").first().text();
             //Logger.d(title);
             v9PornItem.setTitle(title);
 
-            String duration = element.select("span.duration").text();
+            String duration = element.select("span[class=duration]").first().text();
             v9PornItem.setDuration(duration);
 
             String allInfo = element.text();
@@ -210,40 +236,40 @@ public class ParseV9PronVideo {
             videoResult.setId(VideoResult.OUT_OF_WATCH_TIMES);
             return videoResult;
         }
-        Document doc = Jsoup.parse(html);
-        String videoUrl = "";
-        try{
-            videoUrl = doc.select("video").first().select("source").first().attr("src");
-        }catch (Exception e){
-
+        if (html.contains("视频不存在,可能已经被删除或者被举报为不良内容!")) {
+            videoResult.setId(VideoResult.VIDEO_NOT_EXIST_OR_DELETE);
+            return videoResult;
         }
+        final String reg = "document.write\\(strencode\\(\"(.+)\",\"(.+)\",.+\\)\\);";
+        Pattern p = Pattern.compile(reg);
+        Matcher m = p.matcher(html);
+        String param1 = "", param2 = "";
+        if (m.find()) {
+            param1 = m.group(1);
+            param2 = m.group(2);
+        }
+        param1 = new String(Base64.decode(param1.getBytes(), Base64.DEFAULT));
+        String source_str = "";
+        for (int i = 0, k = 0; i < param1.length(); i++) {
+            k = i % param2.length();
+            source_str += "" + (char) (param1.codePointAt(i) ^ param2.codePointAt(k));
+        }
+        Logger.t(TAG).d("视频source1：" + source_str);
+        source_str = new String(Base64.decode(source_str.getBytes(), Base64.DEFAULT));
+        Logger.t(TAG).d("视频source2：" + source_str);
 
-        if(!videoUrl.startsWith("http")){
-            final String reg = "document.write\\(strencode\\(\"(.+)\",\"(.+)\",.+\\)\\);";
-            Pattern p = Pattern.compile(reg);
-            Matcher m = p.matcher(html);
-            String param1 = "", param2 = "";
-            if(m.find()){
-                param1 = m.group(1);
-                param2 = m.group(2);
-            }
-            param1 = new String(Base64.decode(param1.getBytes(),Base64.DEFAULT));
-            String source_str = "";
-            for (int i = 0,k=0; i<param1.length(); i++) {
-                k = i % param2.length();
-                source_str += ""+(char)(param1.codePointAt(i) ^ param2.codePointAt(k));
-            }
-            Logger.t(TAG).d("视频source1：" + source_str);
-            source_str = new String(Base64.decode(source_str.getBytes(),Base64.DEFAULT));
-            Logger.t(TAG).d("视频source2：" + source_str);
-
-
+        String videoUrl;
+        if (TextUtils.isEmpty(source_str)) {
+            Logger.t(TAG).d(html);
+            Document doc = Jsoup.parse(html);
+            videoUrl = doc.select("video").first().select("source").first().attr("src");
+        } else {
             Document source = Jsoup.parse(source_str);
             videoUrl = source.select("source").first().attr("src");
+            videoResult.setVideoUrl(videoUrl);
+            Logger.t(TAG).d("视频链接：" + videoUrl);
         }
 
-        videoResult.setVideoUrl(videoUrl);
-        Logger.t(TAG).d("视频链接：" + videoUrl);
 
         int startIndex = videoUrl.lastIndexOf("/");
         int endIndex = videoUrl.indexOf(".mp4");
@@ -282,9 +308,14 @@ public class ParseV9PronVideo {
         videoResult.setUserOtherInfo(otherInfo);
         Logger.t(TAG).d(otherInfo);
 
-        String thumImg = doc.getElementById("vid").attr("poster");
-        videoResult.setThumbImgUrl(thumImg);
-        Logger.t(TAG).d("缩略图：" + thumImg);
+        try {
+            String thumImg = doc.getElementById("player_one").attr("poster");
+            videoResult.setThumbImgUrl(thumImg);
+            Logger.t(TAG).d("缩略图：" + thumImg);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
         String videoName = doc.getElementById("viewvideo-title").text();
         videoResult.setVideoName(videoName);
@@ -300,45 +331,53 @@ public class ParseV9PronVideo {
      */
     public static User parseUserInfo(String html) {
         User user = new User();
+//        html=DevHtmlTools.getLocalHtml(MyApplication.getInstance(),"user.txt");
         Document doc = Jsoup.parse(html);
         //新帐号注册成功登录后信息不一样，导致无法解析
-        Element element = doc.getElementById("userinfo-title");
+        //Element element = doc.getElementById("userinfo-title");
+        Element element=doc.select("div[id=userinfo]").first();
+//        Element element = doc.getElementById("myprofile");
         if (element == null) {
+            Logger.t(TAG).d(html);
             user.setLogin(true);
             user.setUserName("无法解析用户信息...");
             return user;
         }
 
         //解析用户uid，2018年3月29日 似乎已经失效了,可在播放界面获取
-        Element userLickElement = element.select("a").first();
-        if (userLickElement != null) {
-            String userLinks = userLickElement.attr("href");
-            int uid = Integer.parseInt(StringUtils.subString(userLinks, userLinks.indexOf("=") + 1, userLinks.length()));
-            user.setUserId(uid);
-            Logger.t(TAG).d(userLinks);
-            Logger.t(TAG).d(uid);
-        } else {
-            Logger.t(TAG).d("无法解析用户uid");
-        }
-        String userInfoTitle = doc.getElementById("userinfo-title").text();
-        String userName = StringUtils.subString(userInfoTitle, userInfoTitle.indexOf("欢迎") + 3, userInfoTitle.indexOf("用户状态"));
+        Element userLickElement = element.select("a").get(1);
+//        if (userLickElement != null) {
+//            String userLinks = userLickElement.attr("href");
+//            int uid = Integer.parseInt(StringUtils.subString(userLinks, userLinks.indexOf("=") + 1, userLinks.length()));
+//            user.setUserId(uid);
+//            Logger.t(TAG).d(userLinks);
+//            Logger.t(TAG).d(uid);
+//        } else {
+//            Logger.t(TAG).d("无法解析用户uid");
+//        }
+        String userInfoTitle = doc.select("div[id=userinfo]").first().text();
+        String userName = doc.select("div[id=userinfo]").first().text().substring(doc.select("div[id=userinfo]").first().text().indexOf("欢迎")+3,doc.select("div[id=userinfo]").first().text().indexOf("用户状态")-1);
         Logger.t(TAG).d(userName);
         user.setUserName(userName);
 
-        String userAccountStatus = doc.getElementById("userinfo-title").select("font").first().text();
+        String userAccountStatus = doc.select("div[id=userinfo]").first().select("font").first().text();
         Logger.t(TAG).d(userAccountStatus);
         user.setStatus(userAccountStatus);
 
-        String userContent = doc.getElementById("userinfo-content").text();
+        String userContent = doc.select("div[id=userinfo]").first().text();
         Logger.t(TAG).d(userContent);
 
-        String lastLoginTime = userContent.substring(userContent.indexOf("最后登录"), userContent.indexOf("IP:"));
-        String lastLoginIP = userContent.substring(userContent.indexOf("IP:"), userContent.indexOf("点此查看"));
-        user.setLastLoginTime(lastLoginTime);
-        user.setLastLoginIP(lastLoginIP);
+        try {
+            String lastLoginTime = doc.select("div[id=userinfo]").first().text().substring(doc.select("div[id=userinfo]").first().text().indexOf("可能帐号被盗")+8,doc.select("div[id=userinfo]").first().text().indexOf("IP")).replace(".","");
+            String lastLoginIP = doc.select("div[id=userinfo]").first().text().substring(doc.select("div[id=userinfo]").first().text().indexOf("IP")+3,doc.select("div[id=userinfo]").first().text().indexOf("最近一次登录"));
+            user.setLastLoginTime(lastLoginTime);
+            user.setLastLoginIP(lastLoginIP);
 
-        Logger.t(TAG).d(lastLoginTime);
-        Logger.t(TAG).d(lastLoginIP);
+            Logger.t(TAG).d(lastLoginTime);
+            Logger.t(TAG).d(lastLoginIP);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return user;
     }
@@ -353,9 +392,9 @@ public class ParseV9PronVideo {
         int totalPage = 1;
         List<V9PornItem> v9PornItemList = new ArrayList<>();
         Document doc = Jsoup.parse(html);
-        Element body = doc.getElementById("leftside");
+        //Element body = doc.getElementById("leftside");
 
-        Elements videos = doc.select("div.myvideo");
+        Elements videos = doc.select("div[class=col-xs-12 col-sm-4 col-md-3 col-lg-3]");
 
         for (Element element : videos) {
 
@@ -363,11 +402,11 @@ public class ParseV9PronVideo {
 
             String contentUrl = element.select("a").first().attr("href");
 
-            String viewKey = contentUrl.substring(contentUrl.indexOf("=") + 1, contentUrl.length());
+            String viewKey = contentUrl.substring(contentUrl.indexOf("viewkey") + 8, contentUrl.length());
             v9PornItem.setViewKey(viewKey);
             Logger.t(TAG).d(viewKey);
 
-            String title = element.select("strong").first().text();
+            String title = element.select("span[class=video-title title-truncate m-t-5]").first().text();
             v9PornItem.setTitle(title);
             Logger.t(TAG).d(title);
 
@@ -378,11 +417,11 @@ public class ParseV9PronVideo {
             String allInfo = element.text();
             Logger.t(TAG).d(allInfo);
 
-            String duration = allInfo.substring(allInfo.indexOf("时长") + 3, allInfo.indexOf("Views") - 3);
+            String duration = allInfo.substring(allInfo.indexOf("时长") + 3, allInfo.indexOf("查看"));
             v9PornItem.setDuration(duration);
             Logger.t(TAG).d(duration);
 
-            String info = allInfo.substring(allInfo.indexOf("添加时间"), allInfo.length());
+            String info = allInfo.substring(allInfo.indexOf("添加时间")+5, allInfo.indexOf("时长"));
             v9PornItem.setInfo(info);
             Logger.t(TAG).d(info);
 
@@ -397,8 +436,8 @@ public class ParseV9PronVideo {
         }
 
         //总页数
-        Element pagingnav = body.getElementById("paging");
-        Elements a = pagingnav.select("a");
+        //Element pagingnav = body.getElementById("paging");
+        Elements a = doc.select("div[class=pagingnav]");
         if (a.size() >= 2) {
             String ppp = a.get(a.size() - 2).text();
             if (TextUtils.isDigitsOnly(ppp)) {
@@ -439,9 +478,10 @@ public class ParseV9PronVideo {
         int totalPage = 1;
         List<V9PornItem> v9PornItemList = new ArrayList<>();
         Document doc = Jsoup.parse(html);
-        Element body = doc.getElementById("leftside");
+//        Element body = doc.getElementById("leftside");
 
-        Elements videos = doc.select("div.myvideo");
+        Elements videos = doc.select("div[class=col-xs-12 col-sm-4 col-md-3 col-lg-3]");
+        //doc.select("div[class=col-xs-12 col-sm-4 col-md-3 col-lg-3]").get(0).select("span[class=video-title title-truncate m-t-5]").text();
 
         for (Element element : videos) {
 
@@ -453,31 +493,31 @@ public class ParseV9PronVideo {
             v9PornItem.setViewKey(viewKey);
             //Logger.t(TAG).d(viewKey);
 
-            String title = element.select("strong").first().text();
+            String title = element.select("span[class=video-title title-truncate m-t-5]").text();
             v9PornItem.setTitle(title);
             //Logger.t(TAG).d(title);
 
-            String imgUrl = element.select("img").first().attr("src");
+            String imgUrl = element.select("img[class=img-responsive]").attr("src");
             v9PornItem.setImgUrl(imgUrl);
             //Logger.t(TAG).d(imgUrl);
 
             String allInfo = element.text();
             //Logger.t(TAG).d(allInfo);
 
-            String duration = allInfo.substring(allInfo.indexOf("时长") + 3, allInfo.indexOf("查看") - 3);
+            String duration = element.select("span[class=duration]").text();
             v9PornItem.setDuration(duration);
             //Logger.t(TAG).d(duration);
 
-            String info = allInfo.substring(allInfo.indexOf("添加时间"), allInfo.length());
-            v9PornItem.setInfo(info);
+            //String info = allInfo.substring(allInfo.indexOf("添加时间"), allInfo.length());
+            v9PornItem.setInfo(element.select("span[class=info]").get(0).text());
             //Logger.t(TAG).d(info);
 
             v9PornItemList.add(v9PornItem);
         }
 
         //总页数
-        Element pagingnav = body.getElementById("paging");
-        Elements a = pagingnav.select("a");
+        Element pagingnav = doc.getElementById("paging");
+        Elements a = pagingnav.select("span[class=pagingnav]");
         if (a.size() >= 2) {
             String ppp = a.get(a.size() - 2).text();
             if (TextUtils.isDigitsOnly(ppp)) {

@@ -8,6 +8,7 @@ import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.orhanobut.logger.Logger;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.trello.rxlifecycle2.LifecycleProvider;
+import com.u9porn.MyApplication;
 import com.u9porn.data.DataManager;
 import com.u9porn.data.db.entity.V9PornItem;
 import com.u9porn.data.db.entity.VideoResult;
@@ -65,6 +66,8 @@ public class PlayVideoPresenter extends MvpBasePresenter<PlayVideoView> implemen
                             dataManager.resetPorn91VideoWatchTime(true);
                             // Bugsnag.notify(new Throwable(TAG + "Ten videos each day address: " + dataManager.getPorn9VideoAddress()), Severity.WARNING);
                             throw new VideoException("观看次数达到上限了,请更换地址或者代理服务器！");
+                        } else if (VideoResult.VIDEO_NOT_EXIST_OR_DELETE.equals(videoResult.getId())) {
+                            throw new VideoException("视频不存在,可能已经被删除或者被举报为不良内容!");
                         } else {
                             throw new VideoException("解析视频链接失败了");
                         }
@@ -83,7 +86,15 @@ public class PlayVideoPresenter extends MvpBasePresenter<PlayVideoView> implemen
                     @Override
                     public void onSuccess(final VideoResult videoResult) {
                         dataManager.resetPorn91VideoWatchTime(false);
-                        ifViewAttached(view -> view.parseVideoUrlSuccess(saveVideoUrl(videoResult, v9PornItem)));
+                        MyApplication.getInstance().getWebView().evaluateJavascript(videoResult.getVideoUrl(), value -> {
+                            Logger.t(TAG).d(value);
+                            String tempViedeoUrl = value.substring(value.indexOf("http"), value.indexOf("type") - 2);
+                            videoResult.setVideoUrl(tempViedeoUrl);
+                            ifViewAttached(view -> view.parseVideoUrlSuccess(saveVideoUrl(videoResult, v9PornItem)));
+                        });
+                        if(videoResult.getUid()!=0){
+                            dataManager.getUser().setUserId(videoResult.getUid());
+                        }
                     }
 
                     @Override
@@ -169,8 +180,8 @@ public class PlayVideoPresenter extends MvpBasePresenter<PlayVideoView> implemen
     }
 
     @Override
-    public void favorite(String uId, String videoId, String ownnerId) {
-        favoritePresenter.favorite(uId, videoId, ownnerId, new FavoritePresenter.FavoriteListener() {
+    public void favorite(String uId, String videoId, String uvid) {
+        favoritePresenter.favorite(uId, videoId, uvid, new FavoritePresenter.FavoriteListener() {
             @Override
             public void onSuccess(String message) {
                 ifViewAttached(PlayVideoView::favoriteSuccess);

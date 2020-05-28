@@ -60,9 +60,9 @@ public class FavoritePresenter extends MvpBasePresenter<FavoriteView> implements
         favorite(uId, videoId, ownnerId, null);
     }
 
-    public void favorite(String uId, String videoId, String ownnerId, final FavoriteListener favoriteListener) {
+    public void favorite(String uId, String videoId, String uvid, final FavoriteListener favoriteListener) {
 
-        dataManager.favoritePorn9Video(uId, videoId, ownnerId)
+        dataManager.favoritePorn9Video(uId, videoId, uvid)
                 .retryWhen(new RetryWhenProcess(RetryWhenProcess.PROCESS_TIME))
                 .compose(RxSchedulersHelper.<String>ioMainThread())
                 .compose(provider.<String>bindUntilEvent(Lifecycle.Event.ON_STOP))
