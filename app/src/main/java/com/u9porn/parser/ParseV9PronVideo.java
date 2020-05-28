@@ -250,7 +250,7 @@ public class ParseV9PronVideo {
         }
         param1 = new String(Base64.decode(param1.getBytes(), Base64.DEFAULT));
         String source_str = "";
-        for (int i = 0, k = 0; i < param1.length(); i++) {
+        for (int i = 0, k; i < param1.length(); i++) {
             k = i % param2.length();
             source_str += "" + (char) (param1.codePointAt(i) ^ param2.codePointAt(k));
         }
@@ -278,7 +278,7 @@ public class ParseV9PronVideo {
         Logger.t(TAG).d("视频Id：" + videoId);
 
         //这里解析的作者id已经变了，非纯数字了
-
+        Document doc = Jsoup.parse(html);
         String ownerUrl = doc.select("a[href*=UID]").first().attr("href");
         String ownerId = ownerUrl.substring(ownerUrl.indexOf("=") + 1, ownerUrl.length());
         videoResult.setOwnerId(ownerId);

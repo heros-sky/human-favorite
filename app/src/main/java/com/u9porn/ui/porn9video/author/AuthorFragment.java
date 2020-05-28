@@ -88,15 +88,11 @@ public class AuthorFragment extends MvpFragment<AuthorView, AuthorPresenter> imp
                 basePlayVideo.initData();
             }
         });
-        mV91PornAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
-            @Override
-            public void onLoadMoreRequested() {
-                if (canLoadAuthorVideos()) {
-                    presenter.authorVideos(v9PornItem.getVideoResult().getOwnerId(), get_type(), false);
-                }else {
-                    showError("数据错误，无法加载");
-                }
-
+        mV91PornAdapter.setOnLoadMoreListener(()-> {
+            if (canLoadAuthorVideos()) {
+                presenter.authorVideos(v9PornItem.getVideoResult().getOwnerId(), get_type(),false);
+            } else {
+                showError("数据错误，无法加载");
             }
 
         }, recyclerView);
