@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -41,8 +42,8 @@ import butterknife.Unbinder;
 public class AuthorFragment extends MvpFragment<AuthorView, AuthorPresenter> implements AuthorView {
 
     private static final String TAG = AuthorFragment.class.getSimpleName();
-//    @BindView(R.id.type_switch)
-//    Switch type_switch;
+    @BindView(R.id.type_switch)
+    Switch type_switch;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
     @BindView(R.id.swipe_layout)
@@ -62,8 +63,18 @@ public class AuthorFragment extends MvpFragment<AuthorView, AuthorPresenter> imp
         Logger.t(TAG).d("AuthorFragment初始化了.....");
     }
 
+
+
+
     public String get_type(){
-        return "public";
+        String t = "";
+        if(type_switch.isChecked()){
+            t = "private";
+        }else{
+            t="public";
+        }
+//       Logger.t(TAG).d("++++++++>>>>"+t);
+        return t;
     }
 
     @Override
@@ -124,6 +135,15 @@ public class AuthorFragment extends MvpFragment<AuthorView, AuthorPresenter> imp
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(mV91PornAdapter);
+        type_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (canLoadAuthorVideos()) {
+                    presenter.authorVideos(v9PornItem.getVideoResult().getOwnerId(), get_type(),true);
+                }
+        }
+        });
+
     }
 
     @Override
@@ -138,7 +158,7 @@ public class AuthorFragment extends MvpFragment<AuthorView, AuthorPresenter> imp
     }
 
     private boolean canLoadAuthorVideos() {
-        return presenter.isUserLogin() && v9PornItem != null && v9PornItem.getVideoResultId() != 0;
+        return v9PornItem != null && v9PornItem.getVideoResultId() != 0;
     }
 
     @Override

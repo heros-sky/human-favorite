@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'org.greenrobot.greendao' // apply plugin
 //apply plugin: 'com.bugsnag.android.gradle' // apply on last line
-apply plugin: 'bugly'
+//apply plugin: 'bugly'
 android {
     compileSdkVersion parent.ext.compileSdkVersion
     buildToolsVersion parent.ext.buildToolsVersion
@@ -10,7 +10,7 @@ android {
         minSdkVersion parent.ext.minSdkVersion
         targetSdkVersion parent.ext.targetSdkVersion
         versionCode 13
-        versionName "1.1.2"
+        versionName "1.1.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -44,15 +44,15 @@ greendao {
     schemaVersion 4//数据库版本号
 }
 
-bugly {
-    appId = "e426041d83" // 注册时分配的App ID
-    appKey = "" // 注册时分配的App Key
-    appVersion = '1.1.2' //App版本
-    execute = false //插件开关
-    upload = false //上传开关
-    uploadMapping = true //Mapping文件上传开关
-    uploadSymbol = true //Symbol文件上传开关
-}
+//bugly {
+//    appId = "e426041d83" // 注册时分配的App ID
+//    appKey = "" // 注册时分配的App Key
+//    appVersion = '1.1.3' //App版本
+//    execute = false //插件开关
+//    upload = false //上传开关
+//    uploadMapping = true //Mapping文件上传开关
+//    uploadSymbol = true //Symbol文件上传开关
+//}
 /*
 bugsnag {
     autoUpload false //自动上传ProGuard mapping file
@@ -142,7 +142,7 @@ dependencies {
         exclude group: 'com.android.support'
     }
     implementation project(':exolibrary')
-    implementation 'com.tencent.bugly:crashreport:latest.release'
-    implementation 'com.tencent.bugly:nativecrashreport:latest.release'
+//    implementation 'com.tencent.bugly:crashreport:latest.release'
+//    implementation 'com.tencent.bugly:nativecrashreport:latest.release'
     implementation "ru.noties:markwon:$rootProject.markwonVersion"
 }
