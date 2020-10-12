@@ -1,5 +1,7 @@
 package com.u9porn.parser.v9porn.d20200206;
 
+import android.text.TextUtils;
+
 import com.orhanobut.logger.Logger;
 import com.u9porn.data.db.entity.VideoResult;
 import com.u9porn.data.model.User;
@@ -14,7 +16,7 @@ import javax.inject.Inject;
 
 public class VideoUrlParser extends BaseVideoPlayUrlParser implements VideoPlayUrlParser {
 
-    @Inject
+
     public VideoUrlParser() {
 
     }
@@ -35,15 +37,22 @@ public class VideoUrlParser extends BaseVideoPlayUrlParser implements VideoPlayU
         videoResult.setVideoId(videoId);
         Logger.t(TAG).d("视频Id：" + videoId);
 
-        Element jsElement=element.select("script").first();
-        String jsTagString=jsElement.toString();
-        String jsScriptVideoUrl=jsTagString.substring(jsTagString.indexOf("strencode"),jsTagString.indexOf(");"));
+        //Element jsElement=element.select("script").first();
+        //String jsTagString=jsElement.toString();
+        //String jsScriptVideoUrl=jsTagString.substring(jsTagString.indexOf("strencode"),jsTagString.indexOf(");"));
 
         /**
          * element.select("script").toString().substring(element.select("script").toString().indexOf("strencode"),element.select("script").toString().indexOf(");"))
          */
-
-        videoResult.setVideoUrl(jsScriptVideoUrl);
+        //String videoUrl=element.select("source").attr("src");
+        Element playerOneHtml5=element.getElementById("player_one_html5_api");
+        if(playerOneHtml5!=null){
+            String videoUrl=playerOneHtml5.attr("src");
+            if(!TextUtils.isEmpty(videoUrl)){
+                videoResult.setVideoUrl(videoUrl);
+            }
+        }
+        Logger.t(TAG).d("视频Url：" + videoResult.getVideoUrl());
 //        String videoUrl = element.selectFirst("source").attr("src");
 //        videoResult.setVideoUrl(videoUrl);
 //        int startIndex = videoUrl.lastIndexOf("/");

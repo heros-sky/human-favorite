@@ -3,9 +3,11 @@ package com.u9porn.data.network;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;
+import android.webkit.JavascriptInterface;
 
 import com.google.gson.Gson;
 import com.orhanobut.logger.Logger;
+import com.u9porn.MyApplication;
 import com.u9porn.constants.Constants;
 import com.u9porn.data.cache.CacheProviders;
 import com.u9porn.data.db.entity.V9PornItem;
@@ -50,6 +52,7 @@ import com.u9porn.parser.ParsePxgav;
 import com.u9porn.parser.ParseV9PronVideo;
 import com.u9porn.parser.v9porn.VideoPlayUrlParser;
 import com.u9porn.rxjava.RetryWhenProcess;
+import com.u9porn.ui.porn9video.play.PlayVideoPresenter;
 import com.u9porn.utils.AddressHelper;
 import com.u9porn.utils.UserHelper;
 
@@ -61,6 +64,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.functions.Function;
 import io.rx_cache2.DynamicKey;
 import io.rx_cache2.DynamicKeyGroup;
 import io.rx_cache2.EvictDynamicKey;
@@ -100,6 +106,13 @@ public class AppApiHelper implements ApiHelper {
     private Gson gson;
     private User user;
     private final VideoPlayUrlParser videoPlayUrlParser;
+
+    class InJavaScriptLocalObj {
+        @JavascriptInterface
+        public void showSource(String html) {
+            Logger.d("HTML", html);
+        }
+    }
 
     @Inject
     public AppApiHelper(CacheProviders cacheProviders, V9PornServiceApi v9PornServiceApi, Forum9PronServiceApi forum9PronServiceApi, GitHubServiceApi gitHubServiceApi, MeiZiTuServiceApi meiZiTuServiceApi, Mm99ServiceApi mm99ServiceApi, PavServiceApi pavServiceApi, ProxyServiceApi proxyServiceApi, HuaBanServiceApi huaBanServiceApi, AxgleServiceApi axgleServiceApi, AddressHelper addressHelper, Gson gson, MyProxySelector myProxySelector, User user, VideoPlayUrlParser videoPlayUrlParser) {
@@ -193,7 +206,7 @@ public class AppApiHelper implements ApiHelper {
     public Observable<VideoResult> loadPorn9VideoUrl(String viewKey) {
         String ip = addressHelper.getRandomIPAddress();
         //因为登录后不在返回用户uid，需要在此页面获取，所以当前页面不在缓存，确保用户登录后刷新当前页面可以获取到用户uid
-        return v9PornServiceApi.getVideoPlayPage(viewKey, ip, HeaderUtils.getIndexHeader(addressHelper))
+        return v9PornServiceApi.getVideoPlayPage(viewKey,  HeaderUtils.getIndexHeader(addressHelper))
                 .map(html -> videoPlayUrlParser.parseVideoPlayUrl(html, user));
     }
 

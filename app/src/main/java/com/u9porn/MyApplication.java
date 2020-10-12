@@ -12,6 +12,7 @@ import com.squareup.leakcanary.LeakCanary;
 import com.u9porn.data.DataManager;
 import com.u9porn.di.component.DaggerAppComponent;
 import com.u9porn.eventbus.LowMemoryEvent;
+import com.u9porn.utils.AddressHelper;
 import com.u9porn.utils.AppLogger;
 
 import org.greenrobot.eventbus.EventBus;
@@ -37,6 +38,8 @@ public class MyApplication extends DaggerApplication {
     DataManager dataManager;
     @Inject
     WebView mWebView;
+    @Inject
+    AddressHelper addressHelper;
 
     private static MyApplication myApplication;
 
@@ -114,6 +117,10 @@ public class MyApplication extends DaggerApplication {
 
     public WebView getWebView(){
         return mWebView;
+    }
+
+    public AddressHelper getAddressHelper(){
+        return addressHelper;
     }
     @Override
     protected AndroidInjector<? extends DaggerApplication> applicationInjector() {

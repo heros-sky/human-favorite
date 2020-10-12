@@ -1,7 +1,13 @@
 package com.u9porn.ui.porn9video.play;
 
+import android.annotation.SuppressLint;
+import android.app.Application;
 import android.arch.lifecycle.Lifecycle;
+import android.os.Handler;
+import android.os.Message;
+import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
@@ -13,6 +19,8 @@ import com.u9porn.data.DataManager;
 import com.u9porn.data.db.entity.V9PornItem;
 import com.u9porn.data.db.entity.VideoResult;
 import com.u9porn.data.model.User;
+import com.u9porn.data.network.Api;
+import com.u9porn.data.network.okhttp.HeaderUtils;
 import com.u9porn.exception.VideoException;
 import com.u9porn.rxjava.CallBackWrapper;
 import com.u9porn.rxjava.RetryWhenProcess;
@@ -22,12 +30,25 @@ import com.u9porn.ui.porn9video.favorite.FavoritePresenter;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
+import io.reactivex.internal.operators.observable.ObservableFromCallable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author flymegoc
@@ -55,6 +76,7 @@ public class PlayVideoPresenter extends MvpBasePresenter<PlayVideoView> implemen
         this.dataManager = dataManager;
     }
 
+    @SuppressLint("JavascriptInterface")
     @Override
     public void loadVideoUrl(final V9PornItem v9PornItem) {
         String viewKey = v9PornItem.getViewKey();
@@ -76,6 +98,7 @@ public class PlayVideoPresenter extends MvpBasePresenter<PlayVideoView> implemen
                 })
                 .retryWhen(new RetryWhenProcess(RetryWhenProcess.PROCESS_TIME))
                 .compose(RxSchedulersHelper.ioMainThread())
+               // .subscribeOn(AndroidSchedulers.mainThread()).observeOn(AndroidSchedulers.mainThread())
                 .compose(provider.bindUntilEvent(Lifecycle.Event.ON_DESTROY))
                 .subscribe(new CallBackWrapper<VideoResult>() {
                     @Override
@@ -86,12 +109,7 @@ public class PlayVideoPresenter extends MvpBasePresenter<PlayVideoView> implemen
                     @Override
                     public void onSuccess(final VideoResult videoResult) {
                         dataManager.resetPorn91VideoWatchTime(false);
-                        MyApplication.getInstance().getWebView().evaluateJavascript(videoResult.getVideoUrl(), value -> {
-                            Logger.t(TAG).d(value);
-                            String tempViedeoUrl = value.substring(value.indexOf("http"), value.indexOf("type") - 2);
-                            videoResult.setVideoUrl(tempViedeoUrl);
-                            ifViewAttached(view -> view.parseVideoUrlSuccess(saveVideoUrl(videoResult, v9PornItem)));
-                        });
+                        ifViewAttached(view -> view.parseVideoUrlSuccess(saveVideoUrl(videoResult, v9PornItem)));
                         if(videoResult.getUid()!=0){
                             dataManager.getUser().setUserId(videoResult.getUid());
                         }
@@ -102,6 +120,28 @@ public class PlayVideoPresenter extends MvpBasePresenter<PlayVideoView> implemen
                         ifViewAttached(view -> view.errorParseVideoUrl(msg));
                     }
                 });
+    }
+
+    private boolean parseViedoUrl(VideoResult videoResult,String html){
+        if(TextUtils.isEmpty(html)){
+            return false;
+        }
+        else{
+            Document document = Jsoup.parse(html);
+            Element element = document.getElementById("player_one");
+            if(element==null){
+                return false;
+            }
+            if(element.getElementById("player_one_html5_api")==null){
+                return false;
+            }
+            String videoUrl=element.getElementById("player_one_html5_api").attr("src");
+            if(TextUtils.isEmpty(videoUrl)){
+                return false;
+            }
+            videoResult.setVideoUrl(videoUrl);
+            return true;
+        }
     }
 
     /**

@@ -250,7 +250,7 @@ public class ParseV9PronVideo {
         }
         param1 = new String(Base64.decode(param1.getBytes(), Base64.DEFAULT));
         String source_str = "";
-        for (int i = 0, k; i < param1.length(); i++) {
+        for (int i = 0, k = 0; i < param1.length(); i++) {
             k = i % param2.length();
             source_str += "" + (char) (param1.codePointAt(i) ^ param2.codePointAt(k));
         }
@@ -438,8 +438,9 @@ public class ParseV9PronVideo {
         //总页数
         //Element pagingnav = body.getElementById("paging");
         Elements a = doc.select("div[class=pagingnav]");
-        if (a.size() >= 2) {
-            String ppp = a.get(a.size() - 2).text();
+        //Bug Fix:解决收藏页面只能解析出来第一页的收藏数据的bug
+        if(a!=null&&a.size()>0){
+            String ppp=a.select("a").get(0).text();
             if (TextUtils.isDigitsOnly(ppp)) {
                 totalPage = Integer.parseInt(ppp);
                 Logger.d("总页数：" + totalPage);
