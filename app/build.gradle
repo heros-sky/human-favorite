@@ -5,6 +5,7 @@ apply plugin: 'org.greenrobot.greendao' // apply plugin
 android {
     compileSdkVersion parent.ext.compileSdkVersion
     buildToolsVersion parent.ext.buildToolsVersion
+    ndkVersion "21.3.6528147"
     defaultConfig {
         applicationId "com.u9porn"
         minSdkVersion parent.ext.minSdkVersion
