@@ -14,5 +14,12 @@ jobs:
       with:
         java-version: 1.8
     - name: Build with Gradle
-      run:  chmod +x gradlew &&./gradlew build
+      run:  chmod +x gradlew &&./gradlew assembleDebug
 
+      #step：上传apk 到action，在右上角查看
+      # 官方文档 https://help.github.com/cn/actions/automating-your-workflow-with-github-actions/persisting-workflow-data-using-artifacts#uploading-build-and-test-artifacts
+      - name: Upload APK
+        uses: actions/upload-artifact@v1
+        with:
+          name: app
+          path: app/build/outputs/apk/debug/xw-debug.apk
